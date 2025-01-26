@@ -134,7 +134,7 @@
 
     // Exibe resultado (parcial) e habilita botao de decrypt
     document.getElementById("result").textContent = `Encrypted key: ${encryptedKeyBase64}
-Encrypted data: ${encryptedCardBase64}`;
+Encrypted data: ${encryptedCardBase64} verifySignature: ${JSON.stringify(verifySignature)}`;
     document.getElementById("decryptBtn").classList.remove("hidden");
   });
 
