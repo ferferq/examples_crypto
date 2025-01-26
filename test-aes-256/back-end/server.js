@@ -2,12 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const crypto = require("crypto");
+const keys = require('./keys');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-let aesKey = "UUrDXR9m6dxvBRQve5kXt/cRMseksO1RpJ9fovdnmDk=";
+let aesKey = keys.privateKey;
 
 app.get("/get-key", (req, res) => {
     const iv = crypto.randomBytes(12);

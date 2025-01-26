@@ -13,11 +13,9 @@
       date: new Date().toISOString()
     };
 
-    // Pega a chave pública do backend
     const publicKeyResponse = await fetch("http://localhost:3000/get-key");
     const publicKeyRsaPem = await publicKeyResponse.text();
 
-    // Importa a chave pública RSA (para RSA-OAEP)
     const importPublicKey = async (pemKey) => {
       const pem = pemKey
         .replace(/-----BEGIN PUBLIC KEY-----/, "")
@@ -36,7 +34,6 @@
 
     const publicKeyRsa = await importPublicKey(publicKeyRsaPem);
 
-    // Gera chave e IV AES
     const generateAesKey = async () => {
       const aesKey = window.crypto.getRandomValues(new Uint8Array(32)); // 32 bytes => AES-256
       const iv = window.crypto.getRandomValues(new Uint8Array(12));  // 12 bytes => GCM (96 bits)
@@ -46,7 +43,6 @@
       };
     };
 
-    // Converte ArrayBuffer para Base64
     const arrayBufferToBase64 = (buffer) => {
       const bytes = new Uint8Array(buffer);
       let binary = '';
@@ -56,7 +52,6 @@
       return window.btoa(binary);
     };
 
-    // Função para assinar dados com ECDSA no front-end
     const signData = async (privateKey, data) => {
       const encoder = new TextEncoder();
       const signature = await window.crypto.subtle.sign(
@@ -67,12 +62,11 @@
         privateKey,
         encoder.encode(data)
       );
-      return arrayBufferToBase64(signature); // retorna assinatura em base64 (raw ECDSA)
+      return arrayBufferToBase64(signature);
     };
 
     const { key, iv } = await generateAesKey();
 
-    // Importa a chave AES
     const importedKeyAes = await window.crypto.subtle.importKey(
       "raw",
       Uint8Array.from(atob(key), (c) => c.charCodeAt(0)),
@@ -93,12 +87,8 @@
 
     const data = JSON.stringify({ cardData });
 
-    // Assina (raw ECDSA)
-
-    // Monta objeto para criptografar
     const encodedCardData = new TextEncoder().encode(data);
 
-    // Criptografa o objeto com AES-GCM
     const ivBuffer = Uint8Array.from(atob(iv), (c) => c.charCodeAt(0));
     const encryptedCard = await window.crypto.subtle.encrypt(
       { name: "AES-GCM", iv: ivBuffer },
@@ -106,7 +96,6 @@
       encodedCardData
     );
 
-    // Separa authTag (últimos 16 bytes)
     const encryptedBytes = new Uint8Array(encryptedCard);
     const tagLength = 16;
     const authTag = encryptedBytes.slice(-tagLength);
@@ -132,13 +121,11 @@
     );
     encryptedKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(encrypted)));
 
-    // Exibe resultado (parcial) e habilita botao de decrypt
     document.getElementById("result").textContent = `Encrypted key: ${encryptedKeyBase64}
 Encrypted data: ${encryptedCardBase64} verifySignature: ${JSON.stringify(verifySignature)}`;
     document.getElementById("decryptBtn").classList.remove("hidden");
   });
 
-  // Botão para enviar dados criptografados ao backend e tentar descriptografar
   document.getElementById("decryptBtn").addEventListener("click", async () => {
     document.getElementById("decryptBtn").disabled = true;
     const response = await fetch("http://localhost:3000/decrypt", {
