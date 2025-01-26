@@ -147,16 +147,24 @@ Encrypted data: ${encryptedCardBase64}`;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         encryptedKey: encryptedKeyBase64,
-        encryptedData: encryptedCardBase64
+        encryptedData: encryptedCardBase64,
+        forceInvalid: document.getElementById("forceValid").checked,
       })
     });
 
     const result = await response.json();
-    document.getElementById("result").textContent = `
+
+    if (response.status === 200) {
+      document.getElementById("result").textContent = `
       Decrypted data: ${JSON.stringify(result.decryptedData)}
       decrypt key: ${JSON.stringify(result.decryptedKey)}
     `;
+    } else {
+      document.getElementById("result").textContent = `
+      error: ${JSON.stringify(result.error)}
+      details: ${JSON.stringify(result.details)}
+    `;
+    }
     document.getElementById("decryptBtn").disabled = false;
-    document.getElementById("decryptBtn").classList.add("hidden");
   });
 })();

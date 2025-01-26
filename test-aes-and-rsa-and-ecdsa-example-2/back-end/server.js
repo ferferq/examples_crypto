@@ -79,10 +79,12 @@ ${publicKeyBuffer.toString("base64")}
 }
 
 app.post("/decrypt", async (req, res) => {
-  const { encryptedData, encryptedKey, verifySignature } = req.body;
+  const { encryptedData, encryptedKey, verifySignature, forceInvalid } = req.body;
   try {
-    //let data = encryptedData + '1';
     let data = encryptedData;
+    if (forceInvalid) {
+      data = encryptedData + '1';
+    }
 
     const {signature, publicKey } = verifySignature;
     const isValid = await verifyRawECDSA(publicKey, data, signature);

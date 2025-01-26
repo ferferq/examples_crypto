@@ -147,7 +147,8 @@ Encrypted data: ${encryptedCardBase64} verifySignature: ${JSON.stringify(verifyS
       body: JSON.stringify({
         encryptedKey: encryptedKeyBase64,
         encryptedData: encryptedCardBase64,
-        verifySignature
+        verifySignature,
+        forceInvalid: document.getElementById("forceValid").checked,
       })
     });
 
@@ -166,6 +167,5 @@ Encrypted data: ${encryptedCardBase64} verifySignature: ${JSON.stringify(verifyS
     }
 
     document.getElementById("decryptBtn").disabled = false;
-    document.getElementById("decryptBtn").classList.add("hidden");
   });
 })();

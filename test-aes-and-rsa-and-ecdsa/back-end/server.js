@@ -85,7 +85,7 @@ ${publicKeyBuffer.toString("base64")}
 }
 
 app.post("/decrypt", async (req, res) => {
-  const { encryptedData, encryptedKey } = req.body;
+  const { encryptedData, encryptedKey, forceInvalid } = req.body;
   try {
     const privateKey = crypto.createPrivateKey(privateKeyPem);
     const encryptedBuffer = Buffer.from(encryptedKey, "base64");
@@ -116,7 +116,11 @@ app.post("/decrypt", async (req, res) => {
     const decryptData = JSON.parse(decryptedDataBuffer.toString());
     const { data, signature, ecdsaPublicKey } = decryptData;
 
-    const isValid = await verifyRawECDSA(ecdsaPublicKey, data, signature);
+    let dataCompare = data;
+    if (forceInvalid) {
+      dataCompare = data + '1';
+    }
+    const isValid = await verifyRawECDSA(ecdsaPublicKey, dataCompare, signature);
 
     console.log("fer", isValid);
     if (!isValid) {
